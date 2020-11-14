@@ -1,3 +1,8 @@
+# deploy 
+
+`npm run deploy` then goto https://aholulu.bitbucket.io/
+
+
 # about theme
 
 submodule: `git submodule add https://github.com/litten/hexo-theme-yilia.git themes/yilia`
