@@ -48,3 +48,4 @@ severe; used especially as a warning to others
 1. dedicated tutorials 
 1. Instead, you might want to find some dedicated tutorials on getting started with particular types of tools. Great starting places is to search web sites like CSS Tricks, Dev, freeCodeCamp, and Smashing Magazine, as they’re tailored to the web development industry.
 1. rounds off 
+1. tricks of the trade(某行业的)专门技能、技艺、窍门
