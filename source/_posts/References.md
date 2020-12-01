@@ -20,3 +20,12 @@ tags:
 - [工作日每天一道大厂前端面试题 Daily-Interview-Question](https://github.com/Advanced-Frontend/Daily-Interview-Question)
 
 - [前端面试每日3+1](https://github.com/haizlin/fe-interview)
+
+# python
+- [Complete-Python-3-Bootcamp](https://github.com/Pierian-Data/Complete-Python-3-Bootcamp)
+
+# github collections
+[learn-to-code](https://github.com/collections/learn-to-code)
+
+# road map
+[developer-roadmap](https://github.com/kamranahmedse/developer-roadmap)
