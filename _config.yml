@@ -125,6 +125,6 @@ jsonContent:
 ## Docs: https://hexo.io/docs/one-command-deployment
 deploy:
   type: 'git'
-  repo: git@bitbucket.org:aholulu/aholulu.bitbucket.io.git
-  branch: pages
+  repo: https://github.com/luxiaolululu/luxiaolululu.github.io.git
+  branch: gh-pages
   message: Site updated at {{ now('YYYY-MM-DD HH:mm:ss') }}
