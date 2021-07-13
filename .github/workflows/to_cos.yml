@@ -1,0 +1,20 @@
+name: To Tencent Cos
+
+on:
+  push:
+    branches: [ gh-pages ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Upload COS
+        uses: Bluefissure/tencent-cos-action@v0.1.1
+        with:
+          args: delete -r -f / && upload -r ./ /
+          secret_id: ${{ secrets.SECRET_ID }}
+          secret_key: ${{ secrets.SECRET_KEY }}
+          bucket: ${{ secrets.BUCKET }}
+          region: ap-nanjing
+          accelerate: false
