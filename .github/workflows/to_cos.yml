@@ -27,4 +27,4 @@ jobs:
           # COS path to put the local files in on COS
           remote_path: /
           # Set to true for cleaning files on COS path which are not existed in local path. Default is false
-          clean: false # optional
+          clean: true  # optional
