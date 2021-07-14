@@ -1,0 +1,61 @@
+name: To Tencent Cos & Push to gh-pages
+
+on:
+  push:
+    branches: [master, gh-pages, luxiaolululu-patch-1]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository master branch
+        uses: actions/checkout@v2
+        with:
+          ref: "master"
+          submodules: true
+      # from: https://github.com/actions/setup-node
+      - name: Copy config yml to theme
+        run: cp theme_config.yml themes/yilia/_config.yml
+
+      - name: Setup Node.js
+        uses: actions/setup-node@master
+        with:
+          node-version: "14.x"
+
+      - name: Cache NPM dependencies
+        uses: actions/cache@v2
+        with:
+          path: node_modules
+          key: ${{ runner.OS }}-npm-cache
+          restore-keys: |
+            ${{ runner.OS }}-npm-cache
+
+      - name: Install Dependencies
+        run: npm install
+
+      - name: Build
+        run: npm run clean && npm run build
+
+      - name: Deploy
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.HEXO_DEPLOY_TOKEN }}
+          publish_dir: ./public
+          publish_branch: gh-pages # deploying branch
+
+      - name: Install Tencent COSCMD
+        run: sudo pip install coscmd
+
+      - name: Configure Tencent COSCMD
+        env:
+          SECRET_ID: ${{ secrets.SECRET_ID }}
+          SECRET_KEY: ${{ secrets.SECRET_KEY }}
+          BUCKET: ${{ secrets.BUCKET }}
+          REGION: ap-nanjing
+        run: coscmd config -a $SECRET_ID -s $SECRET_KEY -b $BUCKET -r $REGION
+
+      - name: Clean current Bucket
+        run: coscmd delete -rf /
+
+      - name: Uplode to Tencent COS
+        run: cd ./public && coscmd upload -r ./ /
