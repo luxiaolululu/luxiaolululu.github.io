@@ -2,7 +2,7 @@ name: To Tencent Cos & Push to gh-pages
 
 on:
   push:
-    branches: [master, gh-pages, action]
+    branches: [master]
 
 jobs:
   build:
