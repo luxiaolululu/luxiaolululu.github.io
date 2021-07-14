@@ -22,15 +22,12 @@ jobs:
           with: 
               node-version: "14.x"
 
-        - name: Yarn Install Cache
-          uses: c-hive/gha-yarn-cache@v1
-
         - name: Install Dependencies
-          run: yarn install
+          run: npm install
 
         ## generate files
         - name: Generate Hexo Site Public Files & Create Files for Blog Assets
-          run: yarn deploy
+          run: npm deploy
         
         - name: Install Tencent COSCMD
           run: sudo pip install coscmd
