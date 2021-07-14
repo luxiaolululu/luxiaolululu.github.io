@@ -27,7 +27,7 @@ jobs:
 
         ## generate files
         - name: Generate Hexo Site Public Files & Create Files for Blog Assets
-          run: npm deploy
+          run: npm run deploy
         
         - name: Install Tencent COSCMD
           run: sudo pip install coscmd
