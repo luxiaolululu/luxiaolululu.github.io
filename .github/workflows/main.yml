@@ -53,4 +53,4 @@ jobs:
           run: coscmd delete -rf /
         
         - name: Uplode to Tencent COS
-          y trun: coscmd upload -r ./public / --ignore "./.git/*","./.github/*"
+          run: coscmd upload -r ./public / --ignore "./.git/*","./.github/*"
