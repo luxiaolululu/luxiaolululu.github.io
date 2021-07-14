@@ -1,0 +1,56 @@
+name: To Tencent Cos
+
+on:
+    push:
+        branches: [ master, gh-pages ]
+
+jobs:
+    build:
+        runs-on: ubuntu-latest
+        steps:
+        - name: Checkout Repository master branch
+          uses: actions/checkout@v2
+          with: 
+              ref: 'master'
+              submodules: true
+        # from: https://github.com/actions/setup-node
+        - name: Copy config yml to theme 
+          run: cp theme_config.yml themes/yilia/_config.yml
+        
+        - name: Setup Node.js
+          uses: actions/setup-node@master
+          with: 
+              node-version: "14.x"
+
+        - name: Yarn Install Cache
+          uses: c-hive/gha-yarn-cache@v1
+
+        - name: Install Dependencies
+          run: yarn install
+
+        ## generate files
+        - name: Generate Hexo Site Public Files & Create Files for Blog Assets
+          run: yarn deploy
+        
+        - name: Install Tencent COSCMD
+          run: sudo pip install coscmd
+        
+        - name: Configure Tencent COSCMD
+          env:
+              SECRET_ID: ${{ secrets.SECRET_ID }}
+              SECRET_KEY: ${{ secrets.SECRET_KEY }}
+              BUCKET: ${{ secrets.BUCKET }}
+              REGION: ap-nanjing
+          run: coscmd config -a $SECRET_ID -s $SECRET_KEY -b $BUCKET -r $REGION
+        
+        - name: Debug1
+          run: pwd
+        
+        - name: Debug2
+          run: ls
+        
+        - name: Clean current Bucket
+          run: coscmd delete -rf /
+        
+        - name: Uplode to Tencent COS
+          y trun: coscmd upload -r ./public / --ignore "./.git/*","./.github/*"
