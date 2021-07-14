@@ -21,6 +21,10 @@ jobs:
           uses: actions/setup-node@master
           with: 
               node-version: "14.x"
+        - name: commit
+          run: |
+            git config --global user.email 605851326@qq.com
+            git config --global user.name luxiaolululu
 
         - name: Install Dependencies
           run: npm install
