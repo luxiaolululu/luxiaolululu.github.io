@@ -2,7 +2,7 @@ name: To Tencent Cos
 
 on:
     push:
-        branches: [ master, gh-pages ]
+        branches: [ master, gh-pages, luxiaolululu-patch-1 ]
 
 jobs:
     build:
