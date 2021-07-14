@@ -9,22 +9,16 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Tencent Cloud COS Action
-        # You may pin to the exact commit or the version.
-        # uses: TencentCloud/cos-action@5ee3807d5ff6fddadbbb1d3e658c0690863de8ec
-        uses: TencentCloud/cos-action@v1
-        with:
-          # Tencent cloud secret id. Should be referred to a encrypted environment variable
-          secret_id: ${{ secrets.SECRET_ID }}
-          # Tencent cloud secret key. Should be referred to a encrypted environment variable
-          secret_key: ${{ secrets.SECRET_KEY }}
-          # COS bucket name
-          cos_bucket: ${{ secrets.BUCKET }}
-          # COS bucket region
-          cos_region: ap-nanjing
-          # Local path to be uploaded to COS. Directory or file is allowed
-          local_path: ./
-          # COS path to put the local files in on COS
-          remote_path: /
-          # Set to true for cleaning files on COS path which are not existed in local path. Default is false
-          clean: true  # optional
+      - name: Install Tencent COSCMD
+        run: sudo pip install coscmd
+      - name: Configure Tencent COSCMD
+        env:
+          SECRET_ID: ${{ secrets.SECRET_ID }}
+          SECRET_KEY: ${{ secrets.SECRET_KEY }}
+          BUCKET: ${{ secrets.BUCKET }}
+          REGION: ap-nanjing
+        run: coscmd config -a $SECRET_ID -s $SECRET_KEY -b $BUCKET -r $REGION
+      - name: Clean current Bucket
+        run: coscmd delete -rf /
+      - name: Uplode to Tencent COS
+        run: coscmd upload -r ./ / --ignore "./.git/*","./.github/*"
