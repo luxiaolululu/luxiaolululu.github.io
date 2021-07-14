@@ -9,6 +9,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      - uses: actions/checkout@v1
       - name: Install Tencent COSCMD
         run: sudo pip install coscmd
       - name: Debug1
