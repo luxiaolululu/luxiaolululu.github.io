@@ -8,7 +8,7 @@ npm run server
 
 - master: 主分支
 
-- pages: hexo deploy 分支
+- gh-pages: hexo deploy 分支
 
 - temp: 临时commit分支
 
@@ -20,8 +20,8 @@ $ hexo new post "My New Post" # post is template
 
 # deploy
 用github action了
-1. 推送到gh-pages分支
-2. 推送到cos
+1. 推送到gh-pages分支, github.io: https://luxiaolululu.github.io/
+2. 推送到cos: https://hellolulu-1258995667.cos-website.ap-nanjing.myqcloud.com/
 
 # about theme
 
