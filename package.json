@@ -5,8 +5,10 @@
   "scripts": {
     "build": "hexo generate",
     "clean": "hexo clean",
-    "deploy": "hexo clean & hexo generate & hexo deploy",
-    "server": "hexo server"
+    "build-gitio": "hexo generate --config _config.yml,_config_gitio.yml",
+    "build-tencentcos": "hexo generate --config _config.yml,_config_tencentcos.yml",
+    "server": "hexo server",
+    "dev": "hexo clean & hexo generate & hexo server"
   },
   "hexo": {
     "version": "5.2.0"

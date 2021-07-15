@@ -14,8 +14,6 @@ jobs:
           ref: "master"
           submodules: true
       # from: https://github.com/actions/setup-node
-      - name: Copy config yml to theme
-        run: cp theme_config.yml themes/yilia/_config.yml
 
       - name: Setup Node.js
         uses: actions/setup-node@master
@@ -33,15 +31,21 @@ jobs:
       - name: Install Dependencies
         run: npm install
 
-      - name: Build
-        run: npm run clean && npm run build
+      - name: Replace hexo-asset-image index.js
+        run: cp ./node_modules_tmp/hexo-asset-image-index.js ./node_modules/hexo-asset-image/index.js
 
-      - name: Deploy
+      - name: Build for gitio
+        run: npm run clean && npm run build-gitio
+
+      - name: Deploy to gitio
         uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: ${{ secrets.HEXO_DEPLOY_TOKEN }}
           publish_dir: ./public
           publish_branch: gh-pages # deploying branch
+      
+      - name: Build for Tencent COS
+        run: npm run clean && npm run build-tencentcos
 
       - name: Install Tencent COSCMD
         run: sudo pip install coscmd

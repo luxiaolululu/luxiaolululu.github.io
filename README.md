@@ -19,12 +19,18 @@ $ hexo new post "My New Post" # post is template
 ```
 
 # deploy
-
-`npm run deploy` then goto https://aholulu.bitbucket.io/
-
+用github action了
+1. 推送到gh-pages分支
+2. 推送到cos
 
 # about theme
 
-submodule: `git submodule add https://github.com/litten/hexo-theme-yilia.git themes/yilia`
+submodule: `git submodule add https://github.com/luxiaolululu/hexo-theme-yilia.git themes/yilia`
 
-`cp theme_config.yml themes/yilia/_config.yml`
+fork from 原来的yilia主题，然后修改了config文件
+
+
+# 图片显示
+参考文章： https://blog.csdn.net/xjm850552586/article/details/84101345
+需要替换js文件
+`cp ./node_modules_tmp/hexo-asset-image-index.js ./node_modules/hexo-asset-image/index.js`

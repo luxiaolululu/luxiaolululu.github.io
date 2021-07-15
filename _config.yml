@@ -14,7 +14,7 @@ email: mail2lulu@qq.com
 
 # URL
 ## If your site is put in a subdirectory, set url as 'http://example.com/child' and root as '/child/'
-url: https://aholulu.bitbucket.io
+url: http://localhost:4000
 root: /
 permalink: :year/:month/:day/:title/
 permalink_defaults:
@@ -42,7 +42,7 @@ external_link:
   exclude: ''
 filename_case: 0
 render_drafts: false
-post_asset_folder: false
+post_asset_folder: true
 relative_link: false
 future: true
 highlight:
@@ -120,11 +120,3 @@ jsonContent:
       excerpt: false
       categories: false
       tags: true
-
-# Deployment
-## Docs: https://hexo.io/docs/one-command-deployment
-deploy:
-  type: 'git'
-  repo: https://github.com/luxiaolululu/luxiaolululu.github.io.git
-  branch: gh-pages
-  message: Site updated at {{ now('YYYY-MM-DD HH:mm:ss') }}
