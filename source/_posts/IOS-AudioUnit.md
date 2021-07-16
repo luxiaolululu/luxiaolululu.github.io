@@ -65,6 +65,8 @@ AudioComponentInstanceNew(compoent, &audioUnit);
 Audio unit的各个部分组织成scopes and element，如下图所示。当调用函数去配置和控制audio unit时，你可以指定scope和element以标识函数的特点目标。
 ![scope.png](IOS-AudioUnit/scope.png)
 ![scopeelement.png](IOS-AudioUnit/scopeelement.png)
+
+[官方文档](https://developer.apple.com/library/archive/documentation/MusicAudio/Conceptual/AudioUnitHostingGuide_iOS/AudioUnitHostingFundamentals/AudioUnitHostingFundamentals.html#//apple_ref/doc/uid/TP40009492-CH3-SW11)
 scope是audio unit内的编程上下文。虽然global scope可能暗示，但这些上下文从不嵌套。一般是使用一个常量值来自AudioUnitScope枚举。
 
  element是嵌套在audio unit scope中的编程上下文。当element是输入或输出scope的一部分时，它类似于物理音频设备中的信号总线，因此有时成为总线。
@@ -80,6 +82,7 @@ global scope适用于整个audio unit，不与任何特定音频流相关联。�
 > The output element (element 0) output scope gets its stream format from the currently-active output audio hardware.
 > Set your application format on the output scope of the input element. The input element performs format conversion between its input and output scopes as needed. Use the hardware sample rate for your application stream format.
 > If the input scope of the output element is fed by an audio unit connection, it acquires its stream format from that connection. If, however, it is fed by a render callback function, set your application format on it.
+> audio enters at the input scope and leaves at the output scope.
 
 总结一下：
 
@@ -91,9 +94,80 @@ element 1的`input scope`直接连接input 硬件，`input scope`的stream forma
 
 element 0的`output scope`直接连接output 硬件，`output scope`的stream format是由硬件设置。
 
-即，app需要设置的是`element1`的`output scope` 和 `element0`的`input scope`。
+即，app需要设置的是`element1`的`output scope` 和 `element0`的`input scope`的stream format流格式（AudioStreamBasicDescription，就是ASBD）。
+
+另外enableIO的时候，是enable hardware，即`element1`的`input scope` 和 `element1`的`output scope`
+
+还有一些配置是在global scope上设置的
 
 ![scope.png](IOS-AudioUnit/scope2.png)
 
+```
+ 对于I/O Unit来说，Scope和bus的语义如下：
+ Scope          bus                 语义                                          权限
+ Input          1           Input from hardware to I/O unit                     read-only
+ Output         1           Output from I/O unit to program or other units      R / W
+ Input          0           Input to I/O unit from program or other units       R / W
+ Output         0           Output from I/O unit to hardware                    read-only
+```
+
+# 什么是render callback
+> Each request for a set of data is known as a render call or, informally, as a pull. The figure represents render calls as gray “control flow” arrows. The data requested by a render call is more properly known as a set of audio sample frames (see frame).
+
+> In turn, a set of audio sample frames provided in response to a render call is known as a slice. (See slice.) The code that provides the slice is known as a render callback function, described in Render Callback Functions Feed Audio to Audio Units.
+
+> To provide audio from disk or memory to an audio unit input bus, convey it using a render callback function that conforms to the AURenderCallback prototype. The audio unit input invokes your callback when it needs another slice of sample frames, 
 
 
+> The process of writing a render callback function is perhaps the most creative aspect of designing and building an audio unit application. It’s your opportunity to generate or alter sound in any way you can imagine and code
+
+> At the same time, render callbacks have a strict performance requirement that you must adhere to. A render callback lives on a real-time priority thread on which subsequent render calls arrive asynchronously. The work you do in the body of a render callback takes place in this time-constrained environment. If your callback is still producing sample frames in response to the previous render call when the next render call arrives, you get a gap in the sound. For this reason you must not take locks, allocate memory, access the file system or a network connection, or otherwise perform time-consuming tasks in the body of a render callback function.
+
+总结一下
+
+- request data的过程叫做render call 或者 pull。如下图所示的灰色箭头。
+
+- request的data叫做slice(slice就是一些audio frame)
+
+- render callback function就是提供slice的函数，从内存或者磁盘送到audio unit的input（这里应该就是input bus）就需要用AURenderCallback这个函数， 每次audio input 需要slice的时候就会call render callback function， 原型是[AURenderCallback官方文档](https://developer.apple.com/documentation/audiotoolbox/aurendercallback?language=objc)，【所以代码是在GetCapturedDataToSend里面调用AudioUnitRender，这里的 AURenderCallback和AudioUnitRender不同！！】
+
+
+- render callback function 不要做太耗时的操作
+
+
+
+![pull.png](IOS-AudioUnit/pull.png)
+
+### 什么时候需要设置ASBD
+> A key feature of an audio unit connection, as shown in Figure 1-8, is that the connection propagates the audio data stream format from the output of its source audio unit to the input of its destination audio unit. This is a critical point so it bears emphasizing: Stream format propagation takes place by way of an audio unit connection and in one direction only—from the output of a source audio unit to an input of a destination audio unit.
+
+通过audio unit connection 的 format 传播，可以节省设置ASBD
+
+### 一些设计模式
+[官方文档](https://developer.apple.com/library/archive/documentation/MusicAudio/Conceptual/AudioUnitHostingGuide_iOS/ConstructingAudioUnitApps/ConstructingAudioUnitApps.html#//apple_ref/doc/uid/TP40009492-CH16-SW2)
+
+其实这里有点弄不清楚 什么是 audio unit connection 和 render callback
+- I/O Pass Through
+
+I/O pass-through模式将传入的音频直接发送到硬件输出，中间没有处理音频数据。
+
+
+I/O.png
+- I/O Without a Render Callback Function
+
+在Remote I/O unit的elements之间添加一个或多个其它audio unit，可以构建出更有用的应用，因为没有回调函数，则无法直接操作音频，限制了实用性。
+
+
+- I/O_No_Callback.png
+I/O with a Render Callback Function
+在Remote I/O unit之间添加一个回调函数，可以在传入音频到达输出硬件之前对其进行操作。比如使用渲染回调函数调整输出音量，添加颤音，铃声调制，回声或其他效果。通过使用Accelerate框架中提供的傅立叶和卷积函数，你的可能性是无穷尽的
+
+
+render_callback.png
+- Output-Only with a Render Callback Function
+适用于游戏和音乐合成app，将渲染回调函数直接连接到Remote I/O的Output element的input scope
+
+
+only_output.png
+- complex pattern
+complex.png
