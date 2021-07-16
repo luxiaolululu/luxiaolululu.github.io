@@ -16,8 +16,10 @@
 <meta property="og:description" content="官方文档The Audio UnitIO audio unit iOS Play audio data through Audio Unit 好奇怪的文章，图片都是中文的地下链接了一些文章 简书简书Audio Unit详解  audio unit是一个插件audio unit可以有多个audio unit iOS根据功能提供了七种audio unit，分为四类: effect, mixing, i">
 <meta property="og:locale" content="en_US">
 <meta property="og:image" content="https://aholulu.bitbucket.io/2021/07/15/IOS-AudioUnit/scope.png">
+<meta property="og:image" content="https://aholulu.bitbucket.io/2021/07/15/IOS-AudioUnit/scopeelement.png">
+<meta property="og:image" content="https://aholulu.bitbucket.io/2021/07/15/IOS-AudioUnit/scope2.png">
 <meta property="article:published_time" content="2021-07-15T10:20:29.000Z">
-<meta property="article:modified_time" content="2021-07-15T13:02:39.781Z">
+<meta property="article:modified_time" content="2021-07-16T03:51:08.900Z">
 <meta property="article:author" content="Lu Lu">
 <meta property="article:tag" content="IOS">
 <meta property="article:tag" content="Audio">
@@ -185,14 +187,20 @@
 <h3 id="2-AudioComponentDescription"><a href="#2-AudioComponentDescription" class="headerlink" title="2. AudioComponentDescription"></a>2. AudioComponentDescription</h3><p>要在运行时查找audio unit(找到7种的某一个audio unit)，需要为AudioComponentDescription数据结构指定type，subtype，manufacturer。无论是audio unit还是audio process graph API。<br>其实就是为了找到哪一种audio unit(比如vpio和remoteio)，先定义AudioComponentDescription 然后通过AudioComponentFindNext找到对应component，最后初始化audiounit</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">AudioComponentDescription audioDesc &#x3D; &#123;0&#125;;</span><br><span class="line">audioDesc.componentType &#x3D; kAudioUnitType_Output;</span><br><span class="line">audioDesc.componentSubType &#x3D; kAudioUnitSubType_RemoteIO;</span><br><span class="line">audioDesc.componentManufacturer &#x3D; kAudioUnitManufacturer_Apple;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">&#x2F;&#x2F; find component</span><br><span class="line">AudioComponent compoent &#x3D; AudioComponentFindNext(NULL, &amp;audioDesc);</span><br><span class="line">&#x2F;&#x2F; create new instance</span><br><span class="line">AudioComponentInstanceNew(compoent, &amp;audioUnit);</span><br></pre></td></tr></table></figure>
 
-<h3 id="3-使用scope和elements来指定audio-units的各个部分"><a href="#3-使用scope和elements来指定audio-units的各个部分" class="headerlink" title="3.使用scope和elements来指定audio units的各个部分"></a>3.使用scope和elements来指定audio units的各个部分</h3><p>Audio unit的各个部分组织成scopes and element，如下图所示。当调用函数去配置和控制audio unit时，你可以指定scope和element以标识函数的特点目标。<br><img src="/2021/07/15/IOS-AudioUnit/scope.png" alt="scope.png"></p>
-<p>scope是audio unit内的编程上下文。虽然global scope可能暗示，但这些上下文从不嵌套。一般是使用一个常量值来自AudioUnitScope枚举。</p>
-<p>element是嵌套在audio unit scope中的编程上下文。当element是输入或输出scope的一部分时，它类似于物理音频设备中的信号总线，因此有时成为总线。</p>
+<h3 id="3-使用scope和elements来指定audio-units的各个部分"><a href="#3-使用scope和elements来指定audio-units的各个部分" class="headerlink" title="3.使用scope和elements来指定audio units的各个部分"></a>3.使用scope和elements来指定audio units的各个部分</h3><p>Audio unit的各个部分组织成scopes and element，如下图所示。当调用函数去配置和控制audio unit时，你可以指定scope和element以标识函数的特点目标。<br><img src="/2021/07/15/IOS-AudioUnit/scope.png" alt="scope.png"><br><img src="/2021/07/15/IOS-AudioUnit/scopeelement.png" alt="scopeelement.png"><br>scope是audio unit内的编程上下文。虽然global scope可能暗示，但这些上下文从不嵌套。一般是使用一个常量值来自AudioUnitScope枚举。</p>
+<p> element是嵌套在audio unit scope中的编程上下文。当element是输入或输出scope的一部分时，它类似于物理音频设备中的信号总线，因此有时成为总线。</p>
 <p>global scope适用于整个audio unit，不与任何特定音频流相关联。它只有一个元素，即0。某些属性，如每个切片最大帧数（kAudioUnitProperty_MaximumFramesPerSlice），仅适用于global scope</p>
 <p>输入和输出scopes直接参与通过audio unit移动一个或多个音频流。正如你所期待的那样，音频输入scope进入从输出scope离开。属性或参数可以作为整体应用于输入scope或输出scope，某些属性只能应用于scope特定的element</p>
 <blockquote>
 <p>One input element: element 1. One output element: element 0.<br>By default, the input element is disabled and the output element is enabled. If you need to change this, refer to the description of the kAudioOutputUnitProperty_EnableIO property.<br>The outward-facing sides of the Remote I/O unit acquire their formats from the audio hardware as follows:<br>The input element (element 1) input scope gets its stream format from the currently-active audio input hardware.<br>The output element (element 0) output scope gets its stream format from the currently-active output audio hardware.<br>Set your application format on the output scope of the input element. The input element performs format conversion between its input and output scopes as needed. Use the hardware sample rate for your application stream format.<br>If the input scope of the output element is fed by an audio unit connection, it acquires its stream format from that connection. If, however, it is fed by a render callback function, set your application format on it.</p>
 </blockquote>
+<p>总结一下：</p>
+<p>element即bus，input：1（采集）， output：0（播放）。</p>
+<p>每个element有input scope也有output scope。</p>
+<p>element 1的<code>input scope</code>直接连接input 硬件，<code>input scope</code>的stream format是由硬件设置。</p>
+<p>element 0的<code>output scope</code>直接连接output 硬件，<code>output scope</code>的stream format是由硬件设置。</p>
+<p>即，app需要设置的是<code>element1</code>的<code>output scope</code> 和 <code>element0</code>的<code>input scope</code>。</p>
+<p><img src="/2021/07/15/IOS-AudioUnit/scope2.png" alt="scope.png"></p>
 
       
 
