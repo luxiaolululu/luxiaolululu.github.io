@@ -64,10 +64,10 @@ AudioComponentInstanceNew(compoent, &audioUnit);
 ### 3.使用scope和elements来指定audio units的各个部分
 Audio unit的各个部分组织成scopes and element，如下图所示。当调用函数去配置和控制audio unit时，你可以指定scope和element以标识函数的特点目标。
 ![scope.png](IOS-AudioUnit/scope.png)
-
+![scopeelement.png](IOS-AudioUnit/scopeelement.png)
 scope是audio unit内的编程上下文。虽然global scope可能暗示，但这些上下文从不嵌套。一般是使用一个常量值来自AudioUnitScope枚举。
 
-element是嵌套在audio unit scope中的编程上下文。当element是输入或输出scope的一部分时，它类似于物理音频设备中的信号总线，因此有时成为总线。
+ element是嵌套在audio unit scope中的编程上下文。当element是输入或输出scope的一部分时，它类似于物理音频设备中的信号总线，因此有时成为总线。
 
 global scope适用于整个audio unit，不与任何特定音频流相关联。它只有一个元素，即0。某些属性，如每个切片最大帧数（kAudioUnitProperty_MaximumFramesPerSlice），仅适用于global scope
 
@@ -80,6 +80,20 @@ global scope适用于整个audio unit，不与任何特定音频流相关联。�
 > The output element (element 0) output scope gets its stream format from the currently-active output audio hardware.
 > Set your application format on the output scope of the input element. The input element performs format conversion between its input and output scopes as needed. Use the hardware sample rate for your application stream format.
 > If the input scope of the output element is fed by an audio unit connection, it acquires its stream format from that connection. If, however, it is fed by a render callback function, set your application format on it.
+
+总结一下：
+
+element即bus，input：1（采集）， output：0（播放）。
+
+每个element有input scope也有output scope。
+
+element 1的`input scope`直接连接input 硬件，`input scope`的stream format是由硬件设置。
+
+element 0的`output scope`直接连接output 硬件，`output scope`的stream format是由硬件设置。
+
+即，app需要设置的是`element1`的`output scope` 和 `element0`的`input scope`。
+
+![scope.png](IOS-AudioUnit/scope2.png)
 
 
 
