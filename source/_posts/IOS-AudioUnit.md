@@ -207,3 +207,7 @@ render_callback.png
 only_output.png
 - complex pattern
 complex.png
+
+### stackoverflow
+问题：https://stackoverflow.com/questions/31973110/getting-mic-input-and-speaker-output-using-core-audio/32414034
+[aurioTouch](https://developer.apple.com/library/archive/samplecode/aurioTouch/Introduction/Intro.html)
