@@ -142,6 +142,75 @@
           <div id="js-content" class="content-ll">
             
   
+    <article id="post-Git" class="article article-type-post  article-index" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2021/07/19/Git/">Git</a>
+    </h1>
+  
+
+        
+        <a href="/2021/07/19/Git/" class="archive-article-date">
+  	<time datetime="2021-07-19T16:09:47.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2021-07-19</time>
+</a>
+        
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h2 id="create-patch"><a href="#create-patch" class="headerlink" title="create patch"></a>create patch</h2><p><code>git format-patch HEAD^</code></p>
+<h2 id="check-patch"><a href="#check-patch" class="headerlink" title="check patch"></a>check patch</h2><p><code>git apply --check ~/Code/ilinkvoip_client/0001-tmp-compile-done.patch</code></p>
+<h2 id="apply-patch"><a href="#apply-patch" class="headerlink" title="apply patch"></a>apply patch</h2><p><code>git apply ~/Code/ilinkvoip_client/0001-tmp-compile-done.patch</code></p>
+<p><code>git am xxx.patch</code></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">&#x2F;&#x2F; 最近一次的patch</span><br><span class="line">git format-patch -1</span><br><span class="line">&#x2F;&#x2F; 最近两次的patch</span><br><span class="line">git format-patch -2</span><br></pre></td></tr></table></figure>
+
+
+<h2 id="ssh-添加服务器信任"><a href="#ssh-添加服务器信任" class="headerlink" title="ssh 添加服务器信任"></a>ssh 添加服务器信任</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">ssh-copy-id -i ~&#x2F;.ssh&#x2F;id_rsa.pub -p 36000 root@9.134.119.70</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+      
+
+      
+    </div>
+    <div class="article-info article-info-index">
+      
+      
+      
+
+      
+        <p class="article-more-link">
+          <a class="article-more-a" href="/2021/07/19/Git/">展开全文 >></a>
+        </p>
+      
+
+      
+      <div class="clearfix"></div>
+    </div>
+  </div>
+</article>
+
+<aside class="wrap-side-operation">
+    <div class="mod-side-operation">
+        
+        <div class="jump-container" id="js-jump-container" style="display:none;">
+            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
+                <i class="icon-font icon-back"></i>
+            </a>
+            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
+                <i class="icon-font icon-plane jump-plane"></i>
+            </div>
+        </div>
+        
+        
+    </div>
+</aside>
+
+
+
+
+  
     <article id="post-hello-world" class="article article-type-post  article-index" itemscope itemprop="blogPost">
   <div class="article-inner">
     
@@ -155,7 +224,7 @@
 
         
         <a href="/2021/07/19/hello-world/" class="archive-article-date">
-  	<time datetime="2021-07-19T07:17:29.813Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2021-07-19</time>
+  	<time datetime="2021-07-19T08:14:33.165Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2021-07-19</time>
 </a>
         
       </header>
@@ -333,7 +402,31 @@
 <p>global scope适用于整个audio unit，不与任何特定音频流相关联。它只有一个元素，即0。某些属性，如每个切片最大帧数（kAudioUnitProperty_MaximumFramesPerSlice），仅适用于global scope</p>
 <p>输入和输出scopes直接参与通过audio unit移动一个或多个音频流。正如你所期待的那样，音频输入scope进入从输出scope离开。属性或参数可以作为整体应用于输入scope或输出scope，某些属性只能应用于scope特定的element</p>
 <blockquote>
-<p>One input element: element 1. One output element: element 0.<br>By default, the input element is disabled and the output element is enabled. If you need to change this, refer to the description of the kAudioOutputUnitProperty_EnableIO property.<br>The outward-facing sides of the Remote I/O unit acquire their formats from the audio hardware as follows:<br>The input element (element 1) input scope gets its stream format from the currently-active audio input hardware.<br>The output element (element 0) output scope gets its stream format from the currently-active output audio hardware.<br>Set your application format on the output scope of the input element. The input element performs format conversion between its input and output scopes as needed. Use the hardware sample rate for your application stream format.<br>If the input scope of the output element is fed by an audio unit connection, it acquires its stream format from that connection. If, however, it is fed by a render callback function, set your application format on it.<br>audio enters at the input scope and leaves at the output scope.</p>
+<p>One input element: element 1. One output element: element 0.</p>
+</blockquote>
+<blockquote>
+<p>By default, the input element is disabled and the output element is enabled. If you need to change this, refer to the description of the kAudioOutputUnitProperty_EnableIO property.</p>
+</blockquote>
+<blockquote>
+<p>The outward-facing sides of the Remote I/O unit acquire their formats from the audio hardware as follows:</p>
+</blockquote>
+<blockquote>
+<p>The input element (element 1) input scope gets its stream format from the currently-active audio input hardware.</p>
+</blockquote>
+<blockquote>
+<p>The output element (element 0) output scope gets its stream format from the currently-active output audio hardware.</p>
+</blockquote>
+<blockquote>
+<p>Set your application format on the output scope of the input element. The input element performs format conversion between its input and output scopes as needed. Use the hardware sample rate for your application stream format.</p>
+</blockquote>
+<blockquote>
+<p>If the input scope of the output element is fed by an audio unit connection, it acquires its stream format from that connection. If, however, it is fed by a render callback function, set your application format on it.</p>
+</blockquote>
+<blockquote>
+<p>audio enters at the input scope and leaves at the output scope.</p>
+</blockquote>
+<blockquote>
+<p>The input element is disabled by default</p>
 </blockquote>
 <p>总结一下：</p>
 <p>element即bus，input：1（采集）， output：0（播放）。</p>
@@ -342,7 +435,7 @@
 <p>element 1的<code>input scope</code>直接连接input 硬件，<code>input scope</code>的stream format是由硬件设置。</p>
 <p>element 0的<code>output scope</code>直接连接output 硬件，<code>output scope</code>的stream format是由硬件设置。</p>
 <p>即，app需要设置的是<code>element1</code>的<code>output scope</code> 和 <code>element0</code>的<code>input scope</code>的stream format流格式（AudioStreamBasicDescription，就是ASBD）。</p>
-<p>另外enableIO的时候，是enable hardware，即<code>element1</code>的<code>input scope</code> 和 <code>element1</code>的<code>output scope</code></p>
+<p>另外enableIO的时候，是enable hardware，即<code>element1</code>的<code>input scope</code> 和 <code>element0</code>的<code>output scope</code></p>
 <p>还有一些配置是在global scope上设置的</p>
 <p>每个AudioUnit都有Input, Output 和 Global 三个域。<br>input输入域是音频流进入unit的入口，output输出域是音频流离开unit的出口，global全局域则代表整个unit。<br>输入域和输出域都有若干个bus/element，比如说mixer unit有多个输入bus，只有一个输出bus；而splitter unit则有一个输入bus，有多个输出的bus。</p>
 <p><img src="/2021/07/15/IOS-AudioUnit/scope2.png" alt="scope.png"></p>
