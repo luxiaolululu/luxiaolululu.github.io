@@ -20,7 +20,7 @@
 <meta property="og:image" content="https://aholulu.bitbucket.io/2021/07/15/IOS-AudioUnit/scope2.png">
 <meta property="og:image" content="https://aholulu.bitbucket.io/2021/07/15/IOS-AudioUnit/pull.png">
 <meta property="article:published_time" content="2021-07-15T10:20:29.000Z">
-<meta property="article:modified_time" content="2021-07-16T12:15:06.159Z">
+<meta property="article:modified_time" content="2021-07-19T07:17:29.801Z">
 <meta property="article:author" content="Lu Lu">
 <meta property="article:tag" content="IOS">
 <meta property="article:tag" content="Audio">
@@ -199,11 +199,13 @@
 <p>总结一下：</p>
 <p>element即bus，input：1（采集）， output：0（播放）。</p>
 <p>每个element有input scope也有output scope。</p>
+<p>input scope 和 output scope可以有多个element</p>
 <p>element 1的<code>input scope</code>直接连接input 硬件，<code>input scope</code>的stream format是由硬件设置。</p>
 <p>element 0的<code>output scope</code>直接连接output 硬件，<code>output scope</code>的stream format是由硬件设置。</p>
 <p>即，app需要设置的是<code>element1</code>的<code>output scope</code> 和 <code>element0</code>的<code>input scope</code>的stream format流格式（AudioStreamBasicDescription，就是ASBD）。</p>
 <p>另外enableIO的时候，是enable hardware，即<code>element1</code>的<code>input scope</code> 和 <code>element1</code>的<code>output scope</code></p>
 <p>还有一些配置是在global scope上设置的</p>
+<p>每个AudioUnit都有Input, Output 和 Global 三个域。<br>input输入域是音频流进入unit的入口，output输出域是音频流离开unit的出口，global全局域则代表整个unit。<br>输入域和输出域都有若干个bus/element，比如说mixer unit有多个输入bus，只有一个输出bus；而splitter unit则有一个输入bus，有多个输出的bus。</p>
 <p><img src="/2021/07/15/IOS-AudioUnit/scope2.png" alt="scope.png"></p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">对于I&#x2F;O Unit来说，Scope和bus的语义如下：</span><br><span class="line">Scope          bus                 语义                                          权限</span><br><span class="line">Input          1           Input from hardware to I&#x2F;O unit                     read-only</span><br><span class="line">Output         1           Output from I&#x2F;O unit to program or other units      R &#x2F; W</span><br><span class="line">Input          0           Input to I&#x2F;O unit from program or other units       R &#x2F; W</span><br><span class="line">Output         0           Output from I&#x2F;O unit to hardware                    read-only</span><br></pre></td></tr></table></figure>
 
@@ -234,7 +236,26 @@
 <ul>
 <li>render callback function 不要做太耗时的操作</li>
 </ul>
+<p><code>kAudioUnitProperty_SetRenderCallback</code>是audio unit需要数据，向Host(APP)请求数据；</p>
+<p><code>kAudioOutputUnitProperty_SetInputCallback</code>是audio unit通知Host(APP)数据已经就绪，可以通过<code>AudioUnitRender</code>拉取数据；</p>
+<p>AudioUnitRender的解释是：Initiates a rendering cycle for an audio unit.<br>下图阐释了AudioUnit是如何通过AudioUnitRender去Pull音频流数据</p>
 <p><img src="/2021/07/15/IOS-AudioUnit/pull.png" alt="pull.png"></p>
+<p>其中，<code>kAudioUnitProperty_SetRenderCallback</code> 是 <a target="_blank" rel="noopener" href="https://developer.apple.com/documentation/audiotoolbox/1534199-general_audio_unit_properties"><code>General Audio Unit Properties</code></a>中的一个,</p>
+<p><code>kAudioOutputUnitProperty_SetInputCallback</code> 是 <a target="_blank" rel="noopener" href="https://developer.apple.com/documentation/audiotoolbox/1534116-i_o_audio_unit_properties"><code>Properties for Apple I/O audio units (sometimes called output units)</code></a>的一个</p>
+<p>kAudioOutputUnitProperty_SetInputCallback 是</p>
+<blockquote>
+<p>A read/write AURenderCallbackStruct data structure valid on the audio unit <code>global scope</code>. When an output unit has been enabled for input operation, this callback can be used to provide a single callback to the host application from the input I/O proc, in order to notify the host that input is available and may be obtained by calling the AudioUnitRender function.</p>
+</blockquote>
+<p>采集回调里面会调用 AudioUnitRender(), 但是播放回调里面不会有，这个函数是干啥的<br>stackoverflow问题：<a target="_blank" rel="noopener" href="https://stackoverflow.com/questions/20443187/whats-means-audiounitrender/20450434">https://stackoverflow.com/questions/20443187/whats-means-audiounitrender/20450434</a></p>
+<blockquote>
+<p>Core Audio works on a “pull” model, where the output unit starts the process off by asking for audio samples from the unit connected to its input bus. Likewise, the unit connected to the output unit asks for samples connected to its input bus. Each of those “asks” is rendering cycle.</p>
+</blockquote>
+<blockquote>
+<p>AudioUnitRender() typically passes in a buffer of samples that your audio unit can optionally process in some way. That buffer is the last argument in the function, ioData. inNumberFrames are the number of frames being passed in by ioData. 1 is the output element or ‘bus’ to render for (this could change depending on your configuration). rioUnit is the audio unit in question that is doing the processing.</p>
+</blockquote>
+<blockquote>
+<p><a target="_blank" rel="noopener" href="https://developer.apple.com/library/archive/documentation/MusicAudio/Conceptual/AudioUnitHostingGuide_iOS/AudioUnitHostingFundamentals/AudioUnitHostingFundamentals.html#//apple_ref/doc/uid/TP40009492-CH3-SW27">Apple’s Audio Unit Hosting Guide</a> contains a section on rendering which I’ve found helpful.</p>
+</blockquote>
 <h3 id="什么时候需要设置ASBD"><a href="#什么时候需要设置ASBD" class="headerlink" title="什么时候需要设置ASBD"></a>什么时候需要设置ASBD</h3><blockquote>
 <p>A key feature of an audio unit connection, as shown in Figure 1-8, is that the connection propagates the audio data stream format from the output of its source audio unit to the input of its destination audio unit. This is a critical point so it bears emphasizing: Stream format propagation takes place by way of an audio unit connection and in one direction only—from the output of a source audio unit to an input of a destination audio unit.</p>
 </blockquote>
