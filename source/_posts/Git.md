@@ -25,6 +25,6 @@ git format-patch -2
 
 ## ssh 添加服务器信任
 ```
-ssh-copy-id -i ~/.ssh/id_rsa.pub -p 36000 root@9.134.119.70
+ssh-copy-id -i ~/.ssh/id_rsa.pub -p 36000 root@xxxxx
 
 ```
