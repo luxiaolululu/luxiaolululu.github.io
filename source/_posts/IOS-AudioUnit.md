@@ -76,13 +76,22 @@ global scope适用于整个audio unit，不与任何特定音频流相关联。�
 输入和输出scopes直接参与通过audio unit移动一个或多个音频流。正如你所期待的那样，音频输入scope进入从输出scope离开。属性或参数可以作为整体应用于输入scope或输出scope，某些属性只能应用于scope特定的element
 
 > One input element: element 1. One output element: element 0.
+
 > By default, the input element is disabled and the output element is enabled. If you need to change this, refer to the description of the kAudioOutputUnitProperty_EnableIO property.
+
 > The outward-facing sides of the Remote I/O unit acquire their formats from the audio hardware as follows:
+
 > The input element (element 1) input scope gets its stream format from the currently-active audio input hardware.
+
 > The output element (element 0) output scope gets its stream format from the currently-active output audio hardware.
+
 > Set your application format on the output scope of the input element. The input element performs format conversion between its input and output scopes as needed. Use the hardware sample rate for your application stream format.
+
 > If the input scope of the output element is fed by an audio unit connection, it acquires its stream format from that connection. If, however, it is fed by a render callback function, set your application format on it.
+
 > audio enters at the input scope and leaves at the output scope.
+
+> The input element is disabled by default
 
 总结一下：
 
@@ -98,7 +107,7 @@ element 0的`output scope`直接连接output 硬件，`output scope`的stream fo
 
 即，app需要设置的是`element1`的`output scope` 和 `element0`的`input scope`的stream format流格式（AudioStreamBasicDescription，就是ASBD）。
 
-另外enableIO的时候，是enable hardware，即`element1`的`input scope` 和 `element1`的`output scope`
+另外enableIO的时候，是enable hardware，即`element1`的`input scope` 和 `element0`的`output scope`
 
 还有一些配置是在global scope上设置的
 
