@@ -138,6 +138,14 @@ input输入域是音频流进入unit的入口，output输出域是音频流离�
 
 > At the same time, render callbacks have a strict performance requirement that you must adhere to. A render callback lives on a real-time priority thread on which subsequent render calls arrive asynchronously. The work you do in the body of a render callback takes place in this time-constrained environment. If your callback is still producing sample frames in response to the previous render call when the next render call arrives, you get a gap in the sound. For this reason you must not take locks, allocate memory, access the file system or a network connection, or otherwise perform time-consuming tasks in the body of a render callback function.
 
+> This is the prototype for a function callback Proc that is used both with the 
+					AudioUnit render notification API and the render input callback. See 
+					kAudioUnitProperty_SetRenderCallback property or AudioUnitAddRenderNotify.
+					This callback is part of the process of a call to AudioUnitRender. As a 
+					notification it is called either before or after the audio unit's render 
+					operations. As a render input callback, it is called to provide input data for
+					the particular input bus the callback is attached too.
+
 总结一下
 
 - request data的过程叫做render call 或者 pull。如下图所示的灰色箭头。
@@ -164,7 +172,64 @@ AudioUnitRender的解释是：Initiates a rendering cycle for an audio unit.
 `kAudioOutputUnitProperty_SetInputCallback` 是 [`Properties for Apple I/O audio units (sometimes called output units)`](https://developer.apple.com/documentation/audiotoolbox/1534116-i_o_audio_unit_properties)的一个
 
 kAudioOutputUnitProperty_SetInputCallback 是
-> A read/write AURenderCallbackStruct data structure valid on the audio unit `global scope`. When an output unit has been enabled for input operation, this callback can be used to provide a single callback to the host application from the input I/O proc, in order to notify the host that input is available and may be obtained by calling the AudioUnitRender function.
+> A read/write AURenderCallbackStruct data structure valid on the audio unit `global scope`. When an output unit has been enabled for input operation, this callback can be used to provide a single callback to the host application from the input I/O proc, in order to notify the host that input is available and may be obtained by calling the AudioUnitRender function. Note that the inputProc will always receive a NULL AudioBufferList in ioData. You must call AudioUnitRender in order to obtain the audio.
+
+
+`AudioUnitRender`函数官网文档
+```
+/*!
+	@function		AudioUnitRender
+	@abstract		the render operation where ioData will contain the results of the audio unit's
+					render operations
+	@discussion		an audio unit will render the amount of audio data described by 
+					inNumberOfFrames and the results of that render will be contained within 
+					ioData. The caller should provide audio time stamps where at least the sample 
+					time is valid and it is incrementing sequentially from its previous call 
+					(so, the next time stamp will be the current time stamp + inNumberFrames) 
+					If the sample time is not incrementing sequentially, the audio unit will infer
+					that there is some discontinuity with the timeline it is rendering for
+	
+					The caller must provide a valid ioData AudioBufferList that matches the 
+					expected topology for the current audio format for the given bus. The buffer 
+					list can be of two variants:
+					(1) If the mData pointers are non-null then the audio unit will render its 
+					output into those buffers. These buffers should be aligned to 16 byte 
+					boundaries (which is normally what malloc will return).
+					(2) If the mData pointers are null, then the audio unit can provide pointers 
+					to its own buffers. In this case the audio unit is required to keep those
+					buffers valid for the duration of the calling thread's I/O cycle
+					 
+	@param			inUnit
+					the audio unit
+	@param			ioActionFlags
+					any appropriate action flags for the render operation
+	@param			inTimeStamp
+					the time stamp that applies to this particular render operation. when 
+					rendering for multiple output buses the time stamp will generally be the same 
+					for each output bus, so the audio unit is able to determine without doubt that 
+					this the same render operation
+	@param			inOutputBusNumber
+					the output bus to render for
+	@param			inNumberFrames
+					the number of sample frames to render
+	@param			ioData
+					the audio buffer list that the audio unit is to render into.
+	
+	@result			noErr, or an audio unit render error
+*/
+```
+
+
+```
+[字段含义](https://developer.apple.com/library/archive/documentation/MusicAudio/Conceptual/AudioUnitHostingGuide_iOS/AudioUnitHostingFundamentals/AudioUnitHostingFundamentals.html#//apple_ref/doc/uid/TP40009492-CH3-SW11)
+The inTimeStamp parameter represents the time at which the callback was invoked. It contains an AudioTimeStamp structure, whose mSampleTime field is a sample-frame counter. On each invocation of the callback, the value of the mSampleTime field increments by the number in the inNumberFrames parameter. If your app is a sequencer or a drum machine, for example, you can use the mSampleTime value for scheduling sounds.
+
+The inBusNumber parameter indicates the audio unit bus that invoked the callback, allowing you to branch within the callback depending on this value. In addition, when attaching a callback to an audio unit, you can specify a different context (inRefCon) for each bus.
+
+The inNumberFrames parameter indicates the number of audio sample frames that the callback is being asked to provide on the current invocation. You provide those frames to the buffers in the ioData parameter.
+
+The ioData parameter points to the audio data buffers that the callback must fill when it is invoked. The audio you place into these buffers must conform to the audio stream format of the bus that invoked the callback.
+```
 
 采集回调里面会调用 AudioUnitRender(), 但是播放回调里面不会有，这个函数是干啥的
 stackoverflow问题：https://stackoverflow.com/questions/20443187/whats-means-audiounitrender/20450434
@@ -178,6 +243,35 @@ stackoverflow问题：https://stackoverflow.com/questions/20443187/whats-means-a
 > A key feature of an audio unit connection, as shown in Figure 1-8, is that the connection propagates the audio data stream format from the output of its source audio unit to the input of its destination audio unit. This is a critical point so it bears emphasizing: Stream format propagation takes place by way of an audio unit connection and in one direction only—from the output of a source audio unit to an input of a destination audio unit.
 
 通过audio unit connection 的 format 传播，可以节省设置ASBD
+
+1. AudioStreamBasicDescription Structure
+```
+struct AudioStreamBasicDescription {
+    Float64 mSampleRate;
+    UInt32  mFormatID;
+    UInt32  mFormatFlags;
+    UInt32  mBytesPerPacket;
+    UInt32  mFramesPerPacket;
+    UInt32  mBytesPerFrame;
+    UInt32  mChannelsPerFrame;
+    UInt32  mBitsPerChannel;
+    UInt32  mReserved;
+};
+typedef struct AudioStreamBasicDescription  AudioStreamBasicDescription;
+Because the name AudioStreamBasicDescription is long, it’s often abbreviated in conversation and documentation as ASBD. To define values for the fields of an ASBD, write code similar to that shown in Listing 1-7.
+
+```
+
+2. 交叉格式
+
+> An AudioBuffer structure holds a single buffer of audio data in its mData field. The buffer can represent two different sorts of audio:
+
+> - A single, monophonic, noninterleaved channel of audio
+
+> - Interleaved audio with any number of channels—as designated by the mNumberChannels field
+
+> Noninterleaved formats are used primarily by audio units and audio converters.
+
 
 ### 一些设计模式
 [官方文档](https://developer.apple.com/library/archive/documentation/MusicAudio/Conceptual/AudioUnitHostingGuide_iOS/ConstructingAudioUnitApps/ConstructingAudioUnitApps.html#//apple_ref/doc/uid/TP40009492-CH16-SW2)
@@ -211,3 +305,6 @@ complex.png
 ### stackoverflow
 问题：https://stackoverflow.com/questions/31973110/getting-mic-input-and-speaker-output-using-core-audio/32414034
 [aurioTouch](https://developer.apple.com/library/archive/samplecode/aurioTouch/Introduction/Intro.html)
+
+# 再参考一个demo
+https://github.com/eaglesue/EARecorder_AU
