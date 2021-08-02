@@ -6,13 +6,17 @@
   <meta name="renderer" content="webkit">
   <meta http-equiv="X-UA-Compatible" content="IE=edge" >
   <link rel="dns-prefetch" href="https://aholulu.bitbucket.io">
-  <title>Tag: init | Aholulu</title>
+  <title>webrtc | Aholulu</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta property="og:type" content="website">
-<meta property="og:title" content="Aholulu">
-<meta property="og:url" content="https://aholulu.bitbucket.io/tags/init/index.html">
+  <meta name="description" content="源码git clone https:&#x2F;&#x2F;webrtc.googlesource.com&#x2F;src ADM: audio device module模块123456789101112131415161718webrtcWebRtcVoiceEngine::Init() 的时候初始化     adm_ &#x3D; webrtc::AudioDeviceModule::Create(        we">
+<meta property="og:type" content="article">
+<meta property="og:title" content="webrtc">
+<meta property="og:url" content="https://aholulu.bitbucket.io/2021/08/02/webrtc/index.html">
 <meta property="og:site_name" content="Aholulu">
+<meta property="og:description" content="源码git clone https:&#x2F;&#x2F;webrtc.googlesource.com&#x2F;src ADM: audio device module模块123456789101112131415161718webrtcWebRtcVoiceEngine::Init() 的时候初始化     adm_ &#x3D; webrtc::AudioDeviceModule::Create(        we">
 <meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2021-08-02T15:58:43.000Z">
+<meta property="article:modified_time" content="2021-08-02T08:22:52.831Z">
 <meta property="article:author" content="Lu Lu">
 <meta name="twitter:card" content="summary">
   
@@ -140,60 +144,148 @@
             <canvas data-colors="#eaeaea" data-sectionHeight="100" data-contentId="js-content" id="myCanvas1" class="anm-canvas"></canvas>
           </div>
           <div id="js-content" class="content-ll">
-            
-  
-  
+            <article id="post-webrtc" class="article article-type-post " itemscope itemprop="blogPost">
+  <div class="article-inner">
     
-    
-      
-      
-      <section class="archives-wrap">
-        <div class="archive-year-wrap">
-          <a href="/archives/2021" class="archive-year">2021</a>
-        </div>
-        <div class="archives">
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      	<div class="article-meta">
-	      	<a href="/2021/08/02/hello-world/" class="archive-article-date">
-  	<time datetime="2021-08-02T08:22:52.831Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2021-08-02</time>
-</a>
-        </div>
-    	 
+      <header class="article-header">
+        
   
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/2021/08/02/hello-world/">Hello World</a>
+    <h1 class="article-title" itemprop="name">
+      webrtc
     </h1>
   
 
-        <div class="article-info info-on-right">
-          
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color5">init</a>
-        		</li>
-      		
-		</ul>
-	</div>
+        
+        <a href="/2021/08/02/webrtc/" class="archive-article-date">
+  	<time datetime="2021-08-02T15:58:43.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2021-08-02</time>
+</a>
+        
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h1 id="源码"><a href="#源码" class="headerlink" title="源码"></a>源码</h1><p><code>git clone https://webrtc.googlesource.com/src</code></p>
+<h1 id="ADM-audio-device-module模块"><a href="#ADM-audio-device-module模块" class="headerlink" title="ADM: audio device module模块"></a>ADM: audio device module模块</h1><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">webrtc</span><br><span class="line"></span><br><span class="line">WebRtcVoiceEngine::Init() 的时候初始化 </span><br><span class="line">    adm_ &#x3D; webrtc::AudioDeviceModule::Create(</span><br><span class="line">        webrtc::AudioDeviceModule::kPlatformDefaultAudio, task_queue_factory_);</span><br><span class="line"></span><br><span class="line">class AudioDeviceModuleIOS sdk&#x2F;objc&#x2F;native&#x2F;src&#x2F;audio&#x2F;audio_device_module_ios.mm</span><br><span class="line">    继承 class AudioDeviceModuleIOS : public AudioDeviceModule</span><br><span class="line">    这里使用 std::unique_ptr&lt;AudioDeviceIOS&gt; audio_device_;</span><br><span class="line"></span><br><span class="line">    还有其他的 AndroidAudioDeviceModule WindowsAudioDeviceModule 都继承public AudioDeviceModule</span><br><span class="line"></span><br><span class="line">class AudioDeviceIOS sdk&#x2F;objc&#x2F;native&#x2F;src&#x2F;audio&#x2F;audio_device_ios.mm</span><br><span class="line">    这里使用  std::unique_ptr&lt;VoiceProcessingAudioUnit&gt; audio_unit_;</span><br><span class="line"></span><br><span class="line">class VoiceProcessingAudioUnit sdk&#x2F;objc&#x2F;native&#x2F;src&#x2F;audio&#x2F;voice_processing_audio_unit.mm</span><br><span class="line">    主要在这里 AudioUnitSetProperty</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<p>可以参考源码中的文档<br>modules/audio_device/g3doc/audio_device_module.md<br>ADM: audio device module</p>
+<p>另外一些分析ADM文章：<a target="_blank" rel="noopener" href="https://blog.piasy.com/2018/09/14/WebRTC-ADM/index.html">https://blog.piasy.com/2018/09/14/WebRTC-ADM/index.html</a></p>
+<h1 id="一些refercence"><a href="#一些refercence" class="headerlink" title="一些refercence"></a>一些refercence</h1><ul>
+<li>Official web site: <a target="_blank" rel="noopener" href="http://www.webrtc.org/">http://www.webrtc.org</a></li>
+<li>Master source code repo: <a target="_blank" rel="noopener" href="https://webrtc.googlesource.com/src">https://webrtc.googlesource.com/src</a></li>
+<li>Samples and reference apps: <a target="_blank" rel="noopener" href="https://github.com/webrtc">https://github.com/webrtc</a></li>
+<li>Mailing list: <a target="_blank" rel="noopener" href="http://groups.google.com/group/discuss-webrtc">http://groups.google.com/group/discuss-webrtc</a></li>
+<li>Continuous build: <a target="_blank" rel="noopener" href="https://ci.chromium.org/p/webrtc/g/ci/console">https://ci.chromium.org/p/webrtc/g/ci/console</a></li>
+<li><a href="g3doc/style-guide.md">Coding style guide</a></li>
+<li><a href="CODE_OF_CONDUCT.md">Code of conduct</a></li>
+<li><a href="docs/bug-reporting.md">Reporting bugs</a></li>
+</ul>
 
-          
+      
 
+      
+    </div>
+    <div class="article-info article-info-index">
+      
+      
+      
+
+      
+
+      
+        
+<div class="share-btn share-icons tooltip-left">
+  <div class="tooltip tooltip-east">
+    <span class="tooltip-item">
+      <a href="javascript:;" class="share-sns share-outer">
+        <i class="icon icon-share"></i>
+      </a>
+    </span>
+    <span class="tooltip-content">
+      <div class="share-wrap">
+        <div class="share-icons">
+          <a class="weibo share-sns" href="javascript:;" data-type="weibo">
+            <i class="icon icon-weibo"></i>
+          </a>
+          <a class="weixin share-sns wxFab" href="javascript:;" data-type="weixin">
+            <i class="icon icon-weixin"></i>
+          </a>
+          <a class="qq share-sns" href="javascript:;" data-type="qq">
+            <i class="icon icon-qq"></i>
+          </a>
+          <a class="douban share-sns" href="javascript:;" data-type="douban">
+            <i class="icon icon-douban"></i>
+          </a>
+          <a class="qzone share-sns" href="javascript:;" data-type="qzone">
+            <i class="icon icon-qzone"></i>
+          </a>
+          <a class="facebook share-sns" href="javascript:;" data-type="facebook">
+            <i class="icon icon-facebook"></i>
+          </a>
+          <a class="twitter share-sns" href="javascript:;" data-type="twitter">
+            <i class="icon icon-twitter"></i>
+          </a>
+          <a class="google share-sns" href="javascript:;" data-type="google">
+            <i class="icon icon-google"></i>
+          </a>
         </div>
-        <div class="clearfix"></div>
-    </header>
+      </div>
+    </span>
+  </div>
+</div>
+
+<div class="page-modal wx-share js-wx-box">
+    <a class="close js-modal-close" href="javascript:;"><i class="icon icon-close"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <div class="wx-qrcode">
+      <img src="//pan.baidu.com/share/qrcode?url=https://aholulu.bitbucket.io/2021/08/02/webrtc/" alt="微信分享二维码">
+    </div>
+</div>
+
+<div class="mask js-mask"></div>
+      
+      <div class="clearfix"></div>
+    </div>
   </div>
 </article>
+
+  
+<nav id="article-nav">
   
   
-    </div></section>
+    <a href="/2021/08/02/hello-world/" id="article-nav-older" class="article-nav-link-wrap">
+      <div class="article-nav-title">Hello World</div>
+      <i class="icon-circle-right"></i>
+    </a>
+  
+</nav>
+
+
+<aside class="wrap-side-operation">
+    <div class="mod-side-operation">
+        
+        <div class="jump-container" id="js-jump-container" style="display:none;">
+            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
+                <i class="icon-font icon-back"></i>
+            </a>
+            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
+                <i class="icon-font icon-plane jump-plane"></i>
+            </div>
+        </div>
+        
+        
+    </div>
+</aside>
+
+
+
+  
+  
   
 
-    
+  
+
+  
+
+  
 
 
           </div>
@@ -216,9 +308,9 @@
 	var yiliaConfig = {
 		mathjax: false,
 		isHome: false,
-		isPost: false,
+		isPost: true,
 		isArchive: false,
-		isTag: true,
+		isTag: false,
 		isCategory: false,
 		open_in_new: false,
 		toc_hide_index: true,
